@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="KO-KR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MyWeatherAPP</title>
+    <link
+      rel="stylesheet"
+      as="style"
+      crossorigin
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
+    />
+    <script
+      src="https://code.jquery.com/jquery-3.7.1.min.js"
+      integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment-with-locales.min.js"
+      integrity="sha512-4F1cxYdMiAW98oomSLaygEwmCnIP38pb4Kx70yQYqRwLVCs3DbRumfBq82T08g/4LJ/smbFGFpmeFlQgoDccgg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="topbar">
+      <div class="back-icon">
+        <img src="./image/back-icon.svg" />
+      </div>
+      <div class="menu-icon">
+        <img src="./image/menu-icon.svg" />
+      </div>
+    </div>
+
+    <div class="main-info">
+    <div class="conA">
+      <div class="location-info">
+        <h1></h1>
+        <h2></h2>
+      </div>
+
+      <div class="current-info">
+        <div class="temp-circle">
+            <canvas id="progressCanvas" width="173" height="173"></canvas>
+        </div>
+        <div class="infobox">
+          <div class="temp-info"><span class="current-temp"></span><span class="celsius">°C</span></div>
+          <div class="wind-info">
+            <div class="wind-icon"><img src="./image/wind-vane.svg" class="wind-direction"></img></div><h3 class="wind-speed"></h3>
+          </div>
+        </div>
+        <div class="tempbox">
+          <div class="minTemp">
+            <span class="min-value"></span><span class="min-unit">°C</span>
+          </div>
+          <div class="maxTemp">
+            <span class="max-value"></span><span class="max-unit">°C</span>
+          </div>
+        </div>
+      </div>
+    </div>
+      <div class="info-graphic">
+        <div class="weather-vector"></div>
+        <div class="weather-description">
+            <div class="currentIcon"></div><h1></h1>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="main-contents">
+        <ul class="forecastbox">
+          <li>
+            <h3></h3>
+            <div id="svg-container" class="svg-icon"></div>
+            <div class="mini-temp"><span class="current-temp"></span><span class="celsius">°C</span></div>
+          </li>
+          <li>
+            <h3></h3>
+            <div id="svg-container" class="svg-icon"></div>
+            <div class="mini-temp"><span class="current-temp"></span><span class="celsius">°C</span></div>
+          </li>
+          <li>
+            <h3></h3>
+            <div id="svg-container" class="svg-icon"></div>
+            <div class="mini-temp"><span class="current-temp"></span><span class="celsius">°C</span></div>
+          </li>
+          <li>
+            <h3></h3>
+            <div id="svg-container" class="svg-icon"></div>
+            <div class="mini-temp"><span class="current-temp"></span><span class="celsius">°C</span></div>
+          </li>
+          <li>
+            <h3></h3>
+            <div id="svg-container" class="svg-icon"></div>
+            <div class="mini-temp"><span class="current-temp"></span><span class="celsius">°C</span></div>
+          </li>
+        </ul> 
+        <div class="conB">
+            <div class="comparisonBox">
+              <div class="boxtitle"><img src="./image/tempcomparison.svg"><h4>일교차</h4></div>
+              <div class="boxbox">
+              <div class="temp-comparison"><span class="result"></span><span class="celsius">°C</span></div>
+              <div class="description">
+                <div class="minTemp"></div>
+                <div class="maxTemp"></div>
+              </div>
+            </div>
+            </div>
+            <div class="UVindex">
+              <div class="boxtitle"><img src="./image/uv.svg"><h4>자외선 지수</h4></div>
+              <div class="boxbox2">
+                <h5 class="uvResult"></h5>
+                <p class="uvMessage"></p>
+              </div>
+            </div>
+        </div>
+        <div class="airQuality">
+          <div class="boxtitle"><img src="./image/airpollution.svg"><h4>공기질</h4></div>
+          <div class="boxbox3">
+          <div class="slider-container">
+            <input type="range" id="airQualitySlider" min="0" max="400" step="1" value="0"  />
+          </div>
+          <div class="description">
+            <p id="airQualityText"></p>
+          </div>
+        </div>
+        </div>
+    </div>
+  </body>
+  <script>
+    $(function() {
+      let currentWeatherAPI = `https://api.openweathermap.org/data/2.5/weather?lat=37.3799&lon=126.8032&appid=675490ce5919e17965d514b146b60e64&lang=kr&units=metric`;
+      let forecastAPI = `https://api.openweathermap.org/data/2.5/forecast?lat=37.3799&lon=126.8032&appid=675490ce5919e17965d514b146b60e64&lang=kr&units=metric`;
+      let airPollutionAPI = `https://api.openweathermap.org/data/2.5/air_pollution?lat=37.3799&lon=126.8032&appid=675490ce5919e17965d514b146b60e64&lang=kr&units=metric`;
+      
+      Promise.all([$.getJSON(currentWeatherAPI), $.getJSON(forecastAPI)])
+        .then(([currentData, forecastData]) => {
+          console.log("Current Weather Data:", currentData);
+          console.log("Forecast Data:", forecastData);
+
+        let weather = currentData.weather[0].main;
+        let currentTemp = currentData.main.temp;
+        
+        //24시간동안 최고,최저 기온 계산
+        const temps = forecastData.list.slice(0, 8).map(item => item.main.temp);
+        temps.unshift(currentTemp);
+        const maxTemp = Math.max(...temps);
+        const minTemp = Math.min(...temps);
+        
+        //지역, 시간 호출
+        const cityTranslations = {
+          "Seoul": "서울특별시",
+          "Ansan-si": "경기도 시흥시"
+        };
+        function getKoreanCityName(cityName) {
+          return cityTranslations[cityName] || cityName;
+        }
+
+        let cityName = currentData.name;
+        let koreanCityName = getKoreanCityName(cityName);
+        let dt = currentData.dt;
+        let time = moment(dt * 1000).format(`HH:mm`);
+        $(`.location-info > h1`).text(koreanCityName);
+        $(".location-info > h2").text(time);
+        
+        //풍향, 풍속 인터렉션
+        let windDeg = currentData.wind.deg;
+        let windSpeed = currentData.wind.speed;
+
+        $(`.wind-direction`).css("transform", `rotate(${windDeg}deg)`);
+        $(`.wind-speed`).text(`${windSpeed.toFixed(1)} m/s`);
+        
+        //원형 그래프 인터렉션
+
+        $(".temp-info").html(
+           `<span class="current-temp">${currentTemp.toFixed(0)}</span><span class="celsius">°C</span>`
+          );
+        $(".minTemp").html(
+           `<span class="min-value">${minTemp.toFixed(0)}</span><span class="min-unit">°C</span>`
+          );
+
+        $(".maxTemp").html(
+            `<span class="max-value">${maxTemp.toFixed(0)}</span><span class="max-unit">°C</span>`
+          );
+
+        let percentage = (currentTemp - minTemp) / (maxTemp - minTemp);
+        if (percentage < 0) percentage = 0;
+        if (percentage > 1) percentage = 1;
+        const canvas = document.getElementById('progressCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function drawProgress(percentage) {
+          const centerX = canvas.width / 2;
+          const centerY = canvas.height / 2;
+          const radius = 81;
+          const lineWidth = 10;
+
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, radius, Math.PI * 0.85, Math.PI * 2.15); 
+          ctx.lineWidth = lineWidth;
+          ctx.strokeStyle = '#9E9EAE'; 
+          ctx.lineCap = 'round'; 
+          ctx.stroke();
+
+          const startAngle = Math.PI * 0.85; 
+          const endAngle = startAngle + (Math.PI * 1.4) * percentage;
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+          ctx.lineWidth = lineWidth;
+          ctx.strokeStyle = '#FFE100'; 
+          ctx.lineCap = 'round'; 
+          ctx.stroke();
+        }
+      
+        drawProgress(percentage);
+        console.log('Percentage:', percentage * 100 + '%');
+
+        //날씨에 따라 벡터 이미지 변경
+        const weatherVectors = {
+          "Clear": "./image/ClearVector.svg",
+          "Rain": "./image/RainVector.svg",
+          "Snow": "./image/SnowVector.svg",
+          "Clouds": "./image/CloudVector.svg",
+          "Thunderstorm": "./icons/ThunderVector.svg"
+        };
+        //날씨에 따라 아이콘 변경
+        const weatherIcons = {
+          "Clear": "./image/ClearIcon.svg",
+          "Rain": "./image/RainIcon.svg",
+          "Snow": "./image/SnowIcon.svg",
+          "Clouds": "./image/CloudIcon.svg",
+          "Thunderstorm": "./image/ThunderIcon.svg"
+        };
+
+        const weatherMain = currentData.weather[0].main;
+        const imagePath = weatherVectors[weatherMain];
+        const iconPath = weatherIcons[weatherMain];
+
+        $(".weather-vector").css("background-image", `url(${imagePath})`);
+        $(".currentIcon").css("background-image", `url(${iconPath})`);
+      
+        //날씨에 따라 텍스트 변경
+        let weatherMessage = "";
+        switch(weatherMain) {
+        case "Clear":
+          weatherMessage = "야외활동을 추천해요!";
+          break;
+        case "Rain":
+          weatherMessage = "나갈 때 우산 꼭 챙기세요!";
+          break;
+        case "Snow":
+          weatherMessage = "눈싸움하기 좋은 날씨네요!";
+          break;
+        case "Clouds":
+          weatherMessage = "비가 올지도 몰라요!";
+          break;
+        case "Thunderstorm":
+          weatherMessage = "벼락에 주의하세요!";
+          break;
+        default:
+          weatherMessage = "날씨 정보 없음";
+        }
+        $(".weather-description h1").text(weatherMessage);
+
+        //3시간 단위 데이터 박스
+        let forecastList = forecastData.list;
+        for (let i = 0; i < 5; i++) {
+          let weather = forecastList[i];
+          let time = moment(weather.dt * 1000).format('HH:mm');
+
+          $(".forecastbox li:nth-child(" + (i + 1) + ") h3").text(`${time}`);
+          $(".forecastbox li:nth-child(" + (i + 1) + ") .mini-temp span.current-temp").html(`${weather.main.temp.toFixed(1)}`);
+          
+          let weatherMain = weather.weather[0].main;
+          
+          const iconPath = weatherIcons[weatherMain]; 
+          fetch(iconPath)
+            .then(response => response.text())
+            .then(svgData => {
+              $(".forecastbox li:nth-child(" + (i + 1) + ") .svg-icon").html(svgData);
+            });
+          }
+        
+        //일교차 박스
+        const tempDifference = maxTemp - minTemp;
+
+        $(".comparisonBox .result").html(`${tempDifference.toFixed(0)}`);
+        $(".comparisonBox .minTemp").html(`최저 기온 : ${minTemp.toFixed(0)}°C`);
+        $(".comparisonBox .maxTemp").html(`최고 기온 : ${maxTemp.toFixed(0)}°C`);
+
+        //자외선 지수 호출
+        $.getJSON(airPollutionAPI, function(data) {
+          console.log("Air Pollution Data:", data);
+
+        const uvIndex = data.list[0].main.aqi;
+        $(".UVindex .boxbox2 .uvResult").html(uvIndex);
+        
+        let uvMessage = "자외선 지수가 낮아요. 외출하러 나가는건 어떨까요?";
+        if (uvIndex >= 3 && uvIndex < 6) {
+          uvMessage = "자외선 지수가 보통입니다. 썬크림을 챙기세요.";
+        } else if (uvIndex >= 6 && uvIndex < 8) {
+          uvMessage = "자외선 지수가 높습니다. 야외활동에 유의하세요.";
+        } else if (uvIndex >= 8) {
+          uvMessage = "자외선 지수가 매우 높습니다. 외출을 자제하세요.";
+        }
+
+        $(".UVindex .boxbox2 p").html(uvMessage);
+
+        //공기질 데이터 호출
+        const airQualityIndex = data.list[0].components.pm2_5;
+
+        $("#airQualitySlider").val(airQualityIndex);
+      
+        let airQualityText = "양호한 정도입니다.";
+        if (airQualityIndex > 100 && airQualityIndex <= 200) {
+          airQualityText = "평범한 정도입니다.";
+        } else if (airQualityIndex > 200 && airQualityIndex <= 300) {
+          airQualityText = "나쁜 정도입니다.";
+        } else if (airQualityIndex > 300) {
+          airQualityText = "매우 나쁜 정도입니다.";
+        }
+
+        $("#airQualityValue").text(airQualityIndex.toFixed(0));
+        
+        $("#airQualityText").html(`현재의 공기질 지수는 <span id="airQualityValue">${airQualityIndex.toFixed(0)}</span> 수준으로, <span id="airQualityTextMessage">${airQualityText}</span>`);
+      });
+      
+      });  
+  });
+  </script>
+</html>
