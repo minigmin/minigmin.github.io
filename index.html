@@ -134,6 +134,7 @@
       let currentWeatherAPI = `https://api.openweathermap.org/data/2.5/weather?lat=37.3799&lon=126.8032&appid=675490ce5919e17965d514b146b60e64&lang=kr&units=metric`;
       let forecastAPI = `https://api.openweathermap.org/data/2.5/forecast?lat=37.3799&lon=126.8032&appid=675490ce5919e17965d514b146b60e64&lang=kr&units=metric`;
       let airPollutionAPI = `https://api.openweathermap.org/data/2.5/air_pollution?lat=37.3799&lon=126.8032&appid=675490ce5919e17965d514b146b60e64&lang=kr&units=metric`;
+      let historyAPI = `https://api.openweathermap.org/data/2.5/aggregated/day?lat=37.3799&lon=126.8032&month=11&day=19&appid=675490ce5919e17965d514b146b60e64&lang=kr&units=metric`;
       
       Promise.all([$.getJSON(currentWeatherAPI), $.getJSON(forecastAPI)])
         .then(([currentData, forecastData]) => {
@@ -173,7 +174,6 @@
         $(`.wind-speed`).text(`${windSpeed.toFixed(1)} m/s`);
         
         //원형 그래프 인터렉션
-
         $(".temp-info").html(
            `<span class="current-temp">${currentTemp.toFixed(0)}</span><span class="celsius">°C</span>`
           );
@@ -218,14 +218,32 @@
         drawProgress(percentage);
         console.log('Percentage:', percentage * 100 + '%');
 
+        //일출 일몰 구분
+        let sunrise = currentData.sys.sunrise;
+        let sunset = currentData.sys.sunset;
+
+        let localSunrise = moment.unix(sunrise).local();
+        let localSunset = moment.unix(sunset).local();
+        let localCurrentTime = moment(dt * 1000);
+        let isDaytime = localCurrentTime.isBetween(localSunrise, localSunset, null, '[]');
+
         //날씨에 따라 벡터 이미지 변경
-        const weatherVectors = {
+        const daytimeImage = {
           "Clear": "./image/ClearVector.svg",
           "Rain": "./image/RainVector.svg",
           "Snow": "./image/SnowVector.svg",
           "Clouds": "./image/CloudVector.svg",
-          "Thunderstorm": "./icons/ThunderVector.svg"
+          "Thunderstorm": "./image/ThunderVector.svg"
         };
+
+        const nighttimeImage = {
+          "Clear": "./image/ClearVectorN.svg",
+          "Rain": "./image/RainVectorN.svg",
+          "Snow": "./image/SnowVectorN.svg",
+          "Clouds": "./image/CloudVectorN.svg",
+          "Thunderstorm": "./image/ThunderVectorN.svg"
+        };
+
         //날씨에 따라 아이콘 변경
         const weatherIcons = {
           "Clear": "./image/ClearIcon.svg",
@@ -234,10 +252,11 @@
           "Clouds": "./image/CloudIcon.svg",
           "Thunderstorm": "./image/ThunderIcon.svg"
         };
+        
 
         const weatherMain = currentData.weather[0].main;
-        const imagePath = weatherVectors[weatherMain];
         const iconPath = weatherIcons[weatherMain];
+        const imagePath = isDaytime ? daytimeImage[weatherMain] : nighttimeImage[weatherMain];
 
         $(".weather-vector").css("background-image", `url(${imagePath})`);
         $(".currentIcon").css("background-image", `url(${iconPath})`);
@@ -327,6 +346,7 @@
         
         $("#airQualityText").html(`현재의 공기질 지수는 <span id="airQualityValue">${airQualityIndex.toFixed(0)}</span> 수준으로, <span id="airQualityTextMessage">${airQualityText}</span>`);
       });
+      
       
       });  
   });
