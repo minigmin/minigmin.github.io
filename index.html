@@ -117,7 +117,7 @@
             </div>
         </div>
         <div class="airQuality">
-          <div class="boxtitle"><img src="./image/airpollution.svg"><h4>공기질</h4></div>
+          <div class="boxtitle"><img src="./image/airpollution.svg"><h4>미세먼지 농도</h4></div>
           <div class="boxbox3">
           <div class="slider-container">
             <input type="range" id="airQualitySlider" min="0" max="400" step="1" value="0"  />
@@ -345,7 +345,7 @@
 
         $("#airQualityValue").text(airQualityIndex.toFixed(0));
         
-        $("#airQualityText").html(`현재의 공기질 지수는 <span id="airQualityValue">${airQualityIndex.toFixed(0)}</span> 수준으로, <span id="airQualityTextMessage">${airQualityText}</span>`);
+        $("#airQualityText").html(`현재의 미세먼지 농도는 <span id="airQualityValue">${airQualityIndex.toFixed(0)}</span> 수준으로, <span id="airQualityTextMessage">${airQualityText}</span>`);
       });          
     });  
 
