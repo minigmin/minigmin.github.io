@@ -134,7 +134,8 @@
       let currentWeatherAPI = `https://api.openweathermap.org/data/2.5/weather?lat=37.3799&lon=126.8032&appid=675490ce5919e17965d514b146b60e64&lang=kr&units=metric`;
       let forecastAPI = `https://api.openweathermap.org/data/2.5/forecast?lat=37.3799&lon=126.8032&appid=675490ce5919e17965d514b146b60e64&lang=kr&units=metric`;
       let airPollutionAPI = `https://api.openweathermap.org/data/2.5/air_pollution?lat=37.3799&lon=126.8032&appid=675490ce5919e17965d514b146b60e64&lang=kr&units=metric`;
-      let historyAPI = `https://api.openweathermap.org/data/2.5/aggregated/day?lat=37.3799&lon=126.8032&month=11&day=19&appid=675490ce5919e17965d514b146b60e64&lang=kr&units=metric`;
+      let openUVApiKey = `openuv-gt4rm3oi1q69-io`;
+      let uvAPIURL = `https://api.openuv.io/api/v1/uv?lat=37.3799&lng=126.8032`;
       
       Promise.all([$.getJSON(currentWeatherAPI), $.getJSON(forecastAPI)])
         .then(([currentData, forecastData]) => {
@@ -314,19 +315,19 @@
         $.getJSON(airPollutionAPI, function(data) {
           console.log("Air Pollution Data:", data);
 
-        const uvIndex = data.list[0].main.aqi;
-        $(".UVindex .boxbox2 .uvResult").html(uvIndex);
+        // const uvIndex = data.list[0].main.aqi;
+        // $(".UVindex .boxbox2 .uvResult").html(uvIndex);
         
-        let uvMessage = "자외선 지수가 낮아요. 외출하러 나가는건 어떨까요?";
-        if (uvIndex >= 3 && uvIndex < 6) {
-          uvMessage = "자외선 지수가 보통입니다. 썬크림을 챙기세요.";
-        } else if (uvIndex >= 6 && uvIndex < 8) {
-          uvMessage = "자외선 지수가 높습니다. 야외활동에 유의하세요.";
-        } else if (uvIndex >= 8) {
-          uvMessage = "자외선 지수가 매우 높습니다. 외출을 자제하세요.";
-        }
+        // let uvMessage = "자외선 지수가 낮아요. 외출하러 나가는건 어떨까요?";
+        // if (uvIndex >= 3 && uvIndex < 6) {
+        //   uvMessage = "자외선 지수가 보통입니다. 썬크림을 챙기세요.";
+        // } else if (uvIndex >= 6 && uvIndex < 8) {
+        //   uvMessage = "자외선 지수가 높습니다. 야외활동에 유의하세요.";
+        // } else if (uvIndex >= 8) {
+        //   uvMessage = "자외선 지수가 매우 높습니다. 외출을 자제하세요.";
+        // }
 
-        $(".UVindex .boxbox2 p").html(uvMessage);
+        // $(".UVindex .boxbox2 p").html(uvMessage);
 
         //공기질 데이터 호출
         const airQualityIndex = data.list[0].components.pm2_5;
@@ -345,10 +346,36 @@
         $("#airQualityValue").text(airQualityIndex.toFixed(0));
         
         $("#airQualityText").html(`현재의 공기질 지수는 <span id="airQualityValue">${airQualityIndex.toFixed(0)}</span> 수준으로, <span id="airQualityTextMessage">${airQualityText}</span>`);
-      });
-      
-      
-      });  
+      });          
+    });  
+
+    $.ajax({
+  url: `https://api.openuv.io/api/v1/uv?lat=37.3799&lng=126.8032`,  // 원하는 위치의 위도와 경도
+  type: 'GET',
+  headers: {
+    'X-Access-Token': 'openuv-gt4rm3oi1q69-io'  // OpenUV API 키를 넣어주세요
+  },
+  success: function(data) {
+    console.log('UV Data:', data);
+    const uvIndex = data.result.uv;
+    $(".UVindex .boxbox2 .uvResult").html(uvIndex);
+
+    let uvMessage = "자외선 지수가 낮아요. 외출하러 나가는건 어떨까요?";
+    if (uvIndex >= 3 && uvIndex < 6) {
+      uvMessage = "자외선 지수가 보통입니다. 썬크림을 챙기세요.";
+    } else if (uvIndex >= 6 && uvIndex < 8) {
+      uvMessage = "자외선 지수가 높습니다. 야외활동에 유의하세요.";
+    } else if (uvIndex >= 8) {
+      uvMessage = "자외선 지수가 매우 높습니다. 외출을 자제하세요.";
+    }
+
+    $(".UVindex .boxbox2 p").html(uvMessage);
+  },
+  error: function(error) {
+    console.log('Error fetching UV data:', error);
+  }
+});
+
   });
   </script>
 </html>
