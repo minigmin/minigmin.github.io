@@ -324,11 +324,12 @@ body {
   gap: 0.75rem;
   padding: 0.75rem 1.25rem;
   align-items: center;
+  height: 5.125rem;
 }
-.main-contents .conB .boxbox2 h5 {
+.main-contents .conB .boxbox2 .uvResult {
   font-size: 2.625rem;
 }
-.main-contents .conB .boxbox2 p {
+.main-contents .conB .boxbox2 .uvMessage {
   font-size: 0.625rem;
   line-height: 0.875rem;
 }
