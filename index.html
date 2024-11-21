@@ -358,7 +358,7 @@
   success: function(data) {
     console.log('UV Data:', data);
     const uvIndex = data.result.uv;
-    $(".UVindex .boxbox2 .uvResult").html(uvIndex);
+    $(".UVindex .boxbox2 .uvResult").html(uvIndex.toFixed(0));
 
     let uvMessage = "자외선 지수가 낮아요. 외출하러 나가는건 어떨까요?";
     if (uvIndex >= 3 && uvIndex < 6) {
